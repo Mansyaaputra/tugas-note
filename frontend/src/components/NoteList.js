@@ -19,11 +19,11 @@ const NoteList = () => {
   const getNotes = async () => {
     try {
       const token = localStorage.getItem("accessToken");
-      const response = await axios.get(`${BASE_URL}/api/notes`, { // Updated endpoint
+      const response = await axios.get(`${BASE_URL}/notes`, {
         headers: {
-          Authorization: `Bearer ${token}`
-        },
-        withCredentials: true
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
       setNotes(response.data);
     } catch (error) {
@@ -68,13 +68,12 @@ const NoteList = () => {
     try {
       const token = localStorage.getItem("accessToken");
       await axios.post(
-        `${BASE_URL}/create-notes`,
+        `${BASE_URL}/notes`,
         { title, description },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          withCredentials: true, // pastikan ini ada agar cookie dikirim
+            Authorization: `Bearer ${token}`
+          }
         }
       );
       closeModal();
@@ -94,12 +93,12 @@ const NoteList = () => {
     try {
       const token = localStorage.getItem("accessToken");
       await axios.put(
-        `${BASE_URL}/update-notes/${selectedNote.id}`,
+        `${BASE_URL}/notes/${selectedNote.id}`,
         { title, description },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
-          },
+            Authorization: `Bearer ${token}`
+          }
         }
       );
       closeModal();
@@ -112,18 +111,16 @@ const NoteList = () => {
   const handleLogout = async () => {
     try {
       const token = localStorage.getItem("accessToken");
-
       await axios.post(
         `${BASE_URL}/logout`,
         {},
         {
           headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          withCredentials: true,
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         }
       );
-
       localStorage.removeItem("accessToken");
       navigate("/login");
     } catch (error) {

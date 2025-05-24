@@ -15,10 +15,9 @@ const Register = () => {
     e.preventDefault();
     try {
       const response = await axios.post(
-        `${BASE_URL}/register`, // Remove /api prefix
+        `${BASE_URL}/register`,
         { email, username, password },
-        { 
-          withCredentials: true,
+        {
           headers: {
             'Content-Type': 'application/json'
           }

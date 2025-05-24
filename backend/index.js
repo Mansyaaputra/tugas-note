@@ -10,67 +10,46 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// CORS Headers Middleware - before other middleware
+// CORS middleware
 app.use((req, res, next) => {
-  // Get origin from request header
+  const allowedOrigins = [
+    "http://localhost:3000",
+    "https://frontend-notes-putra-dot-g-09-450802.uc.r.appspot.com",
+  ];
   const origin = req.headers.origin;
 
-  // Allow specific origins
-  if (origin) {
+  if (allowedOrigins.includes(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
   }
 
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS"
-  );
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.setHeader("Access-Control-Allow-Credentials", "true");
+  res.setHeader("Access-Control-Max-Age", "3600");
 
-  // Handle preflight
   if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
+    return res.status(200).end();
   }
-
   next();
 });
 
-// Basic middleware
 app.use(express.json());
 app.use(cookieParser());
 
-// Enable CORS for all requests
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header(
-    "Access-Control-Allow-Methods",
-    "GET, POST, PUT, DELETE, OPTIONS"
-  );
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
-  res.header("Access-Control-Allow-Credentials", "true");
-
-  // Handle OPTIONS method
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
-  }
-  next();
+// Error handling - before routes
+app.use((err, req, res, next) => {
+  console.error("Error:", err);
+  res.status(err.status || 500).json({
+    message: err.message || "Internal server error",
+    error: process.env.NODE_ENV === "development" ? err : {},
+  });
 });
 
-// Simple routes
+// Routes
 app.use(ApiRoute);
 
 // Basic health check
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
-});
-
-// Error handling
-app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).json({ message: err.message || "Server error" });
 });
 
 // Initialize database tables

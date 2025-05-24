@@ -11,16 +11,21 @@ const LoginForm = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
     try {
       const response = await axios.post(
         `${BASE_URL}/login`,
         { username, password },
-        { withCredentials: true }
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
       );
 
-      localStorage.setItem("accessToken", response.data.accessToken);
-      navigate("/notes"); // ✅ Arahkan ke notes setelah login berhasil
+      if (response.data.accessToken) {
+        localStorage.setItem("accessToken", response.data.accessToken);
+        navigate("/notes");
+      }
     } catch (err) {
       alert(err.response?.data?.message || "Login gagal");
     }
