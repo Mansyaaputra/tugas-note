@@ -19,22 +19,29 @@ import { verifyToken } from "../middleware/VerifyToken.js";
 
 const router = express.Router();
 
-// Auth routes (no prefix needed - already handled by index.js)
+// Auth routes
 router.post("/register", createUser);
 router.post("/login", loginHandler);
+
+// Protected note routes
+router.route("/notes")
+  .get(verifyToken, getNotes)
+  .post(verifyToken, createNote);
+
+router.route("/notes/:id")
+  .get(verifyToken, getNoteById)
+  .put(verifyToken, updateNote)
+  .delete(verifyToken, deleteNote);
+
+// Protected user routes
+router.route("/users")
+  .get(verifyToken, getUsers);
+
+router.route("/users/:id")
+  .get(verifyToken, getUserById)
+  .put(verifyToken, updateUser)
+  .delete(verifyToken, deleteUser);
+
 router.post("/logout", verifyToken, logout);
-
-// Notes routes
-router.get("/notes", verifyToken, getNotes);
-router.get("/notes/:id", verifyToken, getNoteById);
-router.post("/notes", verifyToken, createNote);
-router.put("/notes/:id", verifyToken, updateNote);
-router.delete("/notes/:id", verifyToken, deleteNote);
-
-// User routes
-router.get("/users", verifyToken, getUsers);
-router.get("/users/:id", verifyToken, getUserById);
-router.put("/users/:id", verifyToken, updateUser);
-router.delete("/users/:id", verifyToken, deleteUser);
 
 export default router;

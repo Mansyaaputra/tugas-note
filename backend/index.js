@@ -3,30 +3,51 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import ApiRoute from "./route/ApiRoute.js";
 import dotenv from "dotenv";
+import { initUserModel } from "./model/UserModel.js";
+import { initNoteModel } from "./model/NoteModel.js";
 
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware order is important
+// CORS Headers Middleware
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+
+  if (req.method === "OPTIONS") {
+    return res.status(200).end();
+  }
+  next();
+});
+
+// Basic middleware
 app.use(express.json());
 app.use(cookieParser());
 
-// CORS Configuration - Allow all origins
-app.use(
-  cors({
-    origin: true, // Allow all origins
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
-    exposedHeaders: ["Content-Range", "X-Content-Range"],
-  })
-);
+// Enable CORS for all requests
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, DELETE, OPTIONS"
+  );
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  res.header("Access-Control-Allow-Credentials", "true");
 
-// Pre-flight requests
-app.options("*", cors());
+  // Handle OPTIONS method
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+  next();
+});
 
-// Mount routes WITHOUT /api prefix
+// Simple routes
 app.use(ApiRoute);
 
 // Basic health check
@@ -34,12 +55,27 @@ app.get("/health", (req, res) => {
   res.json({ status: "ok" });
 });
 
-// Error handler
+// Error handling
 app.use((err, req, res, next) => {
   console.error(err);
-  res.status(500).json({ message: "Internal server error" });
+  res.status(500).json({ message: err.message || "Server error" });
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// Initialize database tables
+const initDatabase = async () => {
+  try {
+    await initUserModel();
+    await initNoteModel();
+    console.log("Database synchronized");
+  } catch (error) {
+    console.error("Database sync error:", error);
+    process.exit(1);
+  }
+};
+
+// Initialize DB before starting server
+initDatabase().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
 });

@@ -25,7 +25,14 @@ const Note = db.define(
   }
 );
 
-// Force sync to recreate the table
-await db.sync({ force: true });
+// Remove force: true to prevent data loss
+export const initNoteModel = async () => {
+  try {
+    await Note.sync();
+    console.log("Notes table synchronized");
+  } catch (error) {
+    console.error("Error synchronizing Notes table:", error);
+  }
+};
 
 export default Note;

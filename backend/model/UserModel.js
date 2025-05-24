@@ -3,33 +3,47 @@ import db from "../config/database.js";
 
 
 const User = db.define(
-  "users",{ 
+  "users",
+  { 
+    id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
     username: {
       type: Sequelize.STRING,
       allowNull: false,
-    },
-    password: {
-      type: Sequelize.STRING,
-      allowNull: false,
+      unique: true
     },
     email: {
       type: Sequelize.STRING,
       allowNull: false,
+      unique: true
+    },
+    password: {
+      type: Sequelize.STRING,
+      allowNull: false
     },
     refresh_token: {
       type: Sequelize.TEXT,
-      allowNull: true,
-    },
+      allowNull: true
+    }
   },
   {
     freezeTableName: true,
     createdAt: "tanggal_dibuat",
-    updatedAt: "tanggal_diperbarui",
+    updatedAt: "tanggal_diperbarui"
   }
 );
 
-export default User;
+// Remove force: true to prevent data loss
+export const initUserModel = async () => {
+  try {
+    await User.sync();
+    console.log("Users table synchronized");
+  } catch (error) {
+    console.error("Error synchronizing Users table:", error);
+  }
+};
 
-(async () => {
-  await db.sync();
-})();
+export default User;
