@@ -1,0 +1,103 @@
+### 🔐 Variabel token (ganti setelah login)
+@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+### ====================================
+### 👥 USER ROUTES
+### ====================================
+
+### 👥 Get All Users
+GET http://localhost:5000/users
+Content-Type: application/json
+
+###
+
+### 👤 Get User by ID
+GET http://localhost:5000/users/1
+Content-Type: application/json
+
+###
+
+### ➕ Create User (Register)
+POST https://notes-backend-mansya-1031435520100.us-central1.run.app/create-users
+Content-Type: application/json
+
+{
+  "username": "2",
+  "password": "2",
+  "email": "hafizh@example.com"
+}
+
+###
+
+### ✏️ Update User
+PUT http://localhost:5000/update-users/1
+Content-Type: application/json
+
+{
+  "username": "Mansyaa",
+  "email": "putra@example.com",
+  "password": "newpassword123"
+}
+
+###
+
+### ❌ Delete User
+DELETE http://localhost:5000/delete-users/1
+Content-Type: application/json
+
+###
+
+### 🔑 Login User
+POST http://localhost:5000/login
+Content-Type: application/json
+
+{
+  "username": "2",
+  "password": "2"
+}
+
+###
+
+### 🚪 Logout User (pakai verifyToken)
+POST http://localhost:5000/logout
+Authorization: {{token}}
+
+###
+
+### ====================================
+### 📌 NOTES ROUTES (semua butuh token)
+### ====================================
+
+### 🔍 Get All Notes
+GET http://localhost:5000/notes
+Authorization: {{token}}
+
+###
+
+### 🆕 Create Note
+POST http://localhost:5000/create-notes
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+  "title": "Note 1",
+  "description": "Content terkeren abad ini"
+}
+
+###
+
+### ✏️ Update Note
+PUT http://localhost:5000/update-notes/4
+Content-Type: application/json
+Authorization: {{token}}
+
+{
+  "title": "Machine Legend",
+  "description": "Lorem ipsum dolor sit amet..."
+}
+
+###
+
+### ❌ Delete Note
+DELETE http://localhost:5000/delete-notes/4
+Authorization: {{token}}
