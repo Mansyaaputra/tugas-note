@@ -14,7 +14,8 @@ const PORT = process.env.PORT || 5000;
 app.use(cors({
   origin: [
     "http://localhost:3000",
-    "https://frontend-notes-putra-dot-g-09-450802.uc.r.appspot.com"
+    "https://frontend-notes-putra-dot-g-09-450802.uc.r.appspot.com",
+    "https://notes-backend-mansya-663618957788.us-central1.run.app"
   ],
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
