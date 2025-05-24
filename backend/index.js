@@ -25,6 +25,18 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
+// Debug endpoint to check env (REMOVE after debugging)
+app.get("/debug/env", (req, res) => {
+  res.json({
+    DB_HOST: process.env.DB_HOST,
+    DB_NAME: process.env.DB_NAME,
+    DB_USERNAME: process.env.DB_USERNAME,
+    DB_PASSWORD: process.env.DB_PASSWORD ? "SET" : "NOT SET",
+    ACCESS_TOKEN_SECRET: process.env.ACCESS_TOKEN_SECRET ? "SET" : "NOT SET",
+    NODE_ENV: process.env.NODE_ENV
+  });
+});
+
 // Routes
 app.use(ApiRoute);
 
@@ -65,6 +77,11 @@ app.use((err, req, res, next) => {
 // Initialize database tables
 const initDatabase = async () => {
   try {
+    console.log("Connecting to DB:", {
+      DB_HOST: process.env.DB_HOST,
+      DB_NAME: process.env.DB_NAME,
+      DB_USERNAME: process.env.DB_USERNAME
+    });
     await initUserModel();
     await initNoteModel();
     console.log("Database synchronized");
