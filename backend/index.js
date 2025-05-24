@@ -12,21 +12,19 @@ const PORT = process.env.PORT || 5000;
 app.use(express.json());
 app.use(cookieParser());
 
-// CORS Configuration
-const allowedOrigins = [
-  "https://frontend-notes-putra-dot-g-09-450802.uc.r.appspot.com",
-  "http://localhost:3000",
-  "https://notes-backend-mansya-663618957788.us-central1.run.app",
-];
-
+// CORS Configuration - Allow all origins
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: true, // Allow all origins
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
+    exposedHeaders: ["Content-Range", "X-Content-Range"],
   })
 );
+
+// Pre-flight requests
+app.options("*", cors());
 
 // Mount routes WITHOUT /api prefix
 app.use(ApiRoute);

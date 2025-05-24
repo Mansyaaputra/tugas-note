@@ -2,19 +2,30 @@ import { Sequelize } from "sequelize";
 import db from "../config/database.js";
 
 const Note = db.define(
-  "notes",{ 
-    title: {type: Sequelize.STRING,},
-    description: {type: Sequelize.STRING,},
+  "notes",
+  { 
+    id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
+    },
+    title: {
+      type: Sequelize.STRING,
+      allowNull: false
+    },
+    description: {
+      type: Sequelize.TEXT,
+      allowNull: false
+    }
   },
   {
     freezeTableName: true,
     createdAt: "tanggal_dibuat",
-    updatedAt: "tanggal_diperbarui",
+    updatedAt: "tanggal_diperbarui"
   }
 );
 
-export default Note;
+// Force sync to recreate the table
+await db.sync({ force: true });
 
-(async () => {
-  await db.sync();
-})();
+export default Note;

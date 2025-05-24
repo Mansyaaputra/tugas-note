@@ -18,7 +18,7 @@ Content-Type: application/json
 ###
 
 ### ➕ Create User (Register)
-POST https://notes-backend-mansya-1031435520100.us-central1.run.app/create-users
+POST http://localhost:5000/register
 Content-Type: application/json
 
 {
@@ -30,7 +30,7 @@ Content-Type: application/json
 ###
 
 ### ✏️ Update User
-PUT http://localhost:5000/update-users/1
+PUT http://localhost:5000/users/1
 Content-Type: application/json
 
 {
@@ -42,7 +42,7 @@ Content-Type: application/json
 ###
 
 ### ❌ Delete User
-DELETE http://localhost:5000/delete-users/1
+DELETE http://localhost:5000/users/1
 Content-Type: application/json
 
 ###
@@ -70,24 +70,24 @@ Authorization: {{token}}
 
 ### 🔍 Get All Notes
 GET http://localhost:5000/notes
-Authorization: {{token}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiIyIiwiZW1haWwiOiJoYWZpemhAZXhhbXBsZS5jb20iLCJ0YW5nZ2FsX2RpYnVhdCI6IjIwMjUtMDUtMjRUMDU6MTY6MDQuMDAwWiIsInRhbmdnYWxfZGlwZXJiYXJ1aSI6IjIwMjUtMDUtMjRUMDU6MTY6NDYuMDAwWiIsImlhdCI6MTc0ODA2MzkwMiwiZXhwIjoxNzQ4MDY1NzAyfQ.AVoIs6HZ3C2KgEaO-F4DMR8d_bps4jMqYBWctTTO7e4
 
 ###
 
 ### 🆕 Create Note
-POST http://localhost:5000/create-notes
+POST http://localhost:5000/notes
 Content-Type: application/json
-Authorization: {{token}}
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcm5hbWUiOiIyIiwiZW1haWwiOiJoYWZpemhAZXhhbXBsZS5jb20iLCJ0YW5nZ2FsX2RpYnVhdCI6IjIwMjUtMDUtMjRUMDU6MTY6MDQuMDAwWiIsInRhbmdnYWxfZGlwZXJiYXJ1aSI6IjIwMjUtMDUtMjRUMDU6MTg6MjIuMDAwWiIsImlhdCI6MTc0ODA2NDAwNiwiZXhwIjoxNzQ4MDY1ODA2fQ.gOw_DFMZxD-pP-SDGyNwE8mYmUMPwKmovEV7tkioJ44
 
 {
-  "title": "Note 1",
+  "title": "sss",
   "description": "Content terkeren abad ini"
 }
 
 ###
 
 ### ✏️ Update Note
-PUT http://localhost:5000/update-notes/4
+PUT http://localhost:5000/notes/4
 Content-Type: application/json
 Authorization: {{token}}
 
@@ -99,5 +99,5 @@ Authorization: {{token}}
 ###
 
 ### ❌ Delete Note
-DELETE http://localhost:5000/delete-notes/4
+DELETE http://localhost:5000/notes/4
 Authorization: {{token}}
