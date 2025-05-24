@@ -19,11 +19,11 @@ const NoteList = () => {
   const getNotes = async () => {
     try {
       const token = localStorage.getItem("accessToken");
-      const response = await axios.get(`${BASE_URL}/notes`, {
+      const response = await axios.get(`${BASE_URL}/api/notes`, { // Updated endpoint
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${token}`
         },
-        withCredentials: true,
+        withCredentials: true
       });
       setNotes(response.data);
     } catch (error) {

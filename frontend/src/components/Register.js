@@ -14,23 +14,25 @@ const Register = () => {
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
-      await axios.post(
-        `${BASE_URL}/create-users`,
+      const response = await axios.post(
+        `${BASE_URL}/register`, // Remove /api prefix
         { email, username, password },
         { 
           withCredentials: true,
           headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/json'
           }
         }
       );
-      alert("Registrasi berhasil. Silakan login.");
-      navigate("/login");
+      
+      if (response.data.msg) {
+        alert(response.data.msg);
+        navigate("/login");
+      }
     } catch (err) {
-      const errorMsg =
-        err?.response?.data?.msg || // tambahkan ini agar pesan backend muncul
-        err?.response?.data?.message ||
-        "Registrasi gagal. Silakan coba lagi.";
+      const errorMsg = err.response?.data?.msg || 
+                      err.response?.data?.message || 
+                      "Registrasi gagal. Silakan coba lagi.";
       console.error("Register Error:", err);
       alert(errorMsg);
     }

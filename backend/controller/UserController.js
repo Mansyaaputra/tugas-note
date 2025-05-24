@@ -1,6 +1,7 @@
 import User from "../model/UserModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import Sequelize from "sequelize";
 
 const getUsers = async (req, res) => {
   try {
@@ -31,24 +32,47 @@ const createUser = async (req, res) => {
   try {
     const { username, email, password } = req.body;
 
-    // ✅ Cek apakah username sudah terdaftar
-    const existingUser = await User.findOne({ where: { username } });
-    if (existingUser) {
-      return res.status(400).json({ msg: "Username sudah digunakan" });
+    // Validate input
+    if (!username || !email || !password) {
+      return res.status(400).json({
+        msg: "Username, email, dan password harus diisi",
+      });
     }
 
-    // ✅ Enkripsi password dan simpan
-    const encryptPassword = await bcrypt.hash(password, 5);
+    // Check if user already exists
+    const existingUser = await User.findOne({
+      where: {
+        [Sequelize.Op.or]: [
+          { username: username },
+          { email: email },
+        ],
+      },
+    });
+
+    if (existingUser) {
+      return res.status(400).json({
+        msg:
+          existingUser.username === username
+            ? "Username sudah digunakan"
+            : "Email sudah terdaftar",
+      });
+    }
+
+    // Create new user
+    const hashedPassword = await bcrypt.hash(password, 10);
     await User.create({
       username,
       email,
-      password: encryptPassword,
+      password: hashedPassword,
     });
 
     res.status(201).json({ msg: "Register Berhasil" });
   } catch (error) {
-    console.log(error.message);
-    res.status(500).json({ msg: "Terjadi kesalahan di server" });
+    console.error("Create user error:", error);
+    res.status(500).json({
+      msg: "Terjadi kesalahan saat membuat user",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
   }
 };
 

@@ -8,51 +8,40 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ✅ Konfigurasi CORS
+// Middleware order is important
+app.use(express.json());
+app.use(cookieParser());
+
+// CORS Configuration
 const allowedOrigins = [
   "https://frontend-notes-putra-dot-g-09-450802.uc.r.appspot.com",
-  "http://localhost:3000", // tambahkan ini agar development lokal tidak error CORS
+  "http://localhost:3000",
+  "https://notes-backend-mansya-663618957788.us-central1.run.app",
 ];
 
 app.use(
   cors({
-    origin: function (origin, callback) {
-      // allow requests with no origin (like mobile apps or curl requests)
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.indexOf(origin) === -1) {
-        var msg =
-          "The CORS policy for this site does not allow access from the specified Origin.";
-        return callback(new Error(msg), false);
-      }
-      return callback(null, true);
-    },
+    origin: allowedOrigins,
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
-    exposedHeaders: ["Content-Range", "X-Content-Range"],
-    maxAge: 600, // Caches preflight request for 10 minutes
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
-// ✅ Middleware
-app.use(cookieParser());
-app.use(express.json());
-
-// ✅ Routing langsung di root
+// Mount routes WITHOUT /api prefix
 app.use(ApiRoute);
 
-// ✅ Health Check
+// Basic health check
 app.get("/health", (req, res) => {
-  res.status(200).json({ status: "ok", message: "Server is running" });
+  res.json({ status: "ok" });
 });
 
-// ✅ Global error handler (tambahkan di bawah semua route)
+// Error handler
 app.use((err, req, res, next) => {
-  console.error("Global error handler:", err);
+  console.error(err);
   res.status(500).json({ message: "Internal server error" });
 });
 
-// ✅ Start Server
-app.listen(PORT, () =>
-  console.log(`🚀 Server berjalan di http://localhost:${PORT}`)
-);
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
