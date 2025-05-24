@@ -108,17 +108,22 @@ const updateUser = async (req, res) => {
     res.status(200).json({ msg: "User Updated" });
   } catch (error) {
     console.log(error.message);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
 const deleteUser = async (req, res) => {
   try {
-    await User.destroy({
+    const deleted = await User.destroy({
       where: { id: req.params.id },
     });
+    if (deleted === 0) {
+      return res.status(404).json({ message: "User not found" });
+    }
     res.status(200).json({ message: "User deleted" });
   } catch (error) {
     console.log(error.message);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -153,7 +158,8 @@ const loginHandler = async (req, res) => {
       user: userData
     });
   } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
+    console.error("Login error:", error); // log detail error
+    res.status(500).json({ message: "Internal server error", error: error.message });
   }
 };
 
