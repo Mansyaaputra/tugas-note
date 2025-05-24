@@ -16,32 +16,32 @@ import {
   logout,
 } from "../controller/UserController.js";
 import { verifyToken } from "../middleware/VerifyToken.js";
+import { refreshToken } from "../controller/RefreshToken.js";
 
 const router = express.Router();
 
-// Auth routes
-router.post("/register", createUser);
-router.post("/login", loginHandler);
+// Basic error wrapper
+const asyncHandler = (fn) => (req, res, next) => {
+  Promise.resolve(fn(req, res, next)).catch(next);
+};
 
-// Protected note routes
-router.route("/notes")
-  .get(verifyToken, getNotes)
-  .post(verifyToken, createNote);
+// Auth routes - simplified
+router.post("/register", asyncHandler(createUser));
+router.post("/login", asyncHandler(loginHandler));
+router.post("/logout", verifyToken, asyncHandler(logout));
+router.get("/token", asyncHandler(refreshToken)); // Add refresh token route
 
-router.route("/notes/:id")
-  .get(verifyToken, getNoteById)
-  .put(verifyToken, updateNote)
-  .delete(verifyToken, deleteNote);
+// Note routes - simplified
+router.get("/notes", verifyToken, asyncHandler(getNotes));
+router.post("/notes", verifyToken, asyncHandler(createNote));
+router.get("/notes/:id", verifyToken, asyncHandler(getNoteById));
+router.put("/notes/:id", verifyToken, asyncHandler(updateNote));
+router.delete("/notes/:id", verifyToken, asyncHandler(deleteNote));
 
-// Protected user routes
-router.route("/users")
-  .get(verifyToken, getUsers);
-
-router.route("/users/:id")
-  .get(verifyToken, getUserById)
-  .put(verifyToken, updateUser)
-  .delete(verifyToken, deleteUser);
-
-router.post("/logout", verifyToken, logout);
+// User routes - simplified
+router.get("/users", verifyToken, asyncHandler(getUsers));
+router.get("/users/:id", verifyToken, asyncHandler(getUserById));
+router.put("/users/:id", verifyToken, asyncHandler(updateUser));
+router.delete("/users/:id", verifyToken, asyncHandler(deleteUser));
 
 export default router;

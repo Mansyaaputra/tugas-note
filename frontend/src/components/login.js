@@ -3,31 +3,29 @@ import React, { useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { BASE_URL } from "../context/utils";
+import { useAuth } from "../context/AuthContext";
 
 const LoginForm = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post(
-        `${BASE_URL}/login`,
-        { username, password },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await axios.post(`${BASE_URL}/login`, {
+        username,
+        password,
+      });
 
       if (response.data.accessToken) {
-        localStorage.setItem("accessToken", response.data.accessToken);
+        login(response.data.user, response.data.accessToken);
         navigate("/notes");
       }
     } catch (err) {
-      alert(err.response?.data?.message || "Login gagal");
+      setError(err.response?.data?.message || "Login gagal");
     }
   };
 
@@ -35,6 +33,7 @@ const LoginForm = () => {
     <div className="auth-container">
       <form onSubmit={handleLogin} className="auth-form">
         <h2>Login</h2>
+        {error && <div className="error-message">{error}</div>}
         <input
           type="text"
           value={username}

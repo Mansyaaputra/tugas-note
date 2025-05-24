@@ -20,7 +20,8 @@ const Register = () => {
         {
           headers: {
             'Content-Type': 'application/json'
-          }
+          },
+          timeout: 5000 // 5 second timeout
         }
       );
       
@@ -29,10 +30,29 @@ const Register = () => {
         navigate("/login");
       }
     } catch (err) {
-      const errorMsg = err.response?.data?.msg || 
-                      err.response?.data?.message || 
-                      "Registrasi gagal. Silakan coba lagi.";
-      console.error("Register Error:", err);
+      // Network or timeout error
+      if (!err.response) {
+        console.error("Network Error:", err);
+        alert("Connection failed. Please check your internet connection.");
+        return;
+      }
+
+      // Server error
+      if (err.response.status === 500) {
+        console.error("Server Error:", err.response.data);
+        alert("Server error occurred. Please try again later.");
+        return;
+      }
+
+      // Other errors
+      const errorMsg = err.response?.data?.message || 
+                      err.response?.data?.msg || 
+                      "Registration failed. Please try again.";
+      console.error("Register Error:", {
+        status: err.response?.status,
+        data: err.response?.data,
+        error: err
+      });
       alert(errorMsg);
     }
   };

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import "../NoteList.css";
 import { BASE_URL } from "../context/utils";
+import { useAuth } from "../context/AuthContext";
 
 const NoteList = () => {
   const [notes, setNotes] = useState([]);
@@ -11,20 +11,21 @@ const NoteList = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   useEffect(() => {
     getNotes();
   }, []);
 
+  const getAuthHeader = () => ({
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+    }
+  });
+
   const getNotes = async () => {
     try {
-      const token = localStorage.getItem("accessToken");
-      const response = await axios.get(`${BASE_URL}/notes`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      const response = await axios.get(`${BASE_URL}/notes`, getAuthHeader());
       setNotes(response.data);
     } catch (error) {
       console.error("Gagal mengambil catatan:", error);
@@ -36,16 +37,16 @@ const NoteList = () => {
   };
 
   const deleteNote = async (id) => {
-    try {
-      const token = localStorage.getItem("accessToken");
-      await axios.delete(`${BASE_URL}/delete-notes/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      getNotes();
-    } catch (error) {
-      console.error("Gagal menghapus catatan:", error);
+    if (window.confirm("Apakah Anda yakin ingin menghapus catatan ini?")) {
+      try {
+        await axios.delete(`${BASE_URL}/notes/${id}`, getAuthHeader());
+        getNotes();
+      } catch (error) {
+        console.error("Gagal menghapus catatan:", error);
+        if (error.response?.status === 401) {
+          navigate("/login");
+        }
+      }
     }
   };
 
@@ -63,71 +64,34 @@ const NoteList = () => {
     setDescription("");
   };
 
-  const saveNote = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const token = localStorage.getItem("accessToken");
-      await axios.post(
-        `${BASE_URL}/notes`,
-        { title, description },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
+      if (selectedNote) {
+        await axios.put(
+          `${BASE_URL}/notes/${selectedNote.id}`,
+          { title, description },
+          getAuthHeader()
+        );
+      } else {
+        await axios.post(
+          `${BASE_URL}/notes`,
+          { title, description },
+          getAuthHeader()
+        );
+      }
       closeModal();
       getNotes();
     } catch (error) {
-      alert(
-        error.response?.data?.message ||
-        error.response?.data?.msg ||
-        "Gagal menyimpan catatan!"
-      );
       console.log("Gagal menyimpan catatan:", error);
+      if (error.response?.status === 401) {
+        navigate("/login");
+      }
     }
   };
 
-  const updateNote = async (e) => {
-    e.preventDefault();
-    try {
-      const token = localStorage.getItem("accessToken");
-      await axios.put(
-        `${BASE_URL}/notes/${selectedNote.id}`,
-        { title, description },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`
-          }
-        }
-      );
-      closeModal();
-      getNotes();
-    } catch (error) {
-      console.log("Gagal memperbarui catatan:", error);
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      const token = localStorage.getItem("accessToken");
-      await axios.post(
-        `${BASE_URL}/logout`,
-        {},
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-      localStorage.removeItem("accessToken");
-      navigate("/login");
-    } catch (error) {
-      console.error("Logout gagal:", error);
-      localStorage.removeItem("accessToken");
-      navigate("/login");
-    }
+  const handleLogout = () => {
+    logout();
   };
 
   return (
@@ -169,7 +133,7 @@ const NoteList = () => {
         <div className="modal-overlay">
           <div className="modal">
             <h3>{selectedNote ? "Edit Catatan" : "Tambah Catatan"}</h3>
-            <form onSubmit={selectedNote ? updateNote : saveNote}>
+            <form onSubmit={handleSubmit}>
               <input
                 type="text"
                 name="title"

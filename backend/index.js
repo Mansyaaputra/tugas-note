@@ -35,12 +35,24 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(cookieParser());
 
-// Error handling - before routes
+// Custom error handler middleware
 app.use((err, req, res, next) => {
-  console.error("Error:", err);
-  res.status(err.status || 500).json({
-    message: err.message || "Internal server error",
-    error: process.env.NODE_ENV === "development" ? err : {},
+  console.error('Error details:', err);
+  
+  if (err.name === 'SequelizeValidationError') {
+    return res.status(400).json({
+      message: err.errors[0].message
+    });
+  }
+
+  if (err.name === 'SequelizeUniqueConstraintError') {
+    return res.status(409).json({
+      message: 'Username or email already exists'
+    });
+  }
+
+  res.status(500).json({
+    message: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
   });
 });
 
